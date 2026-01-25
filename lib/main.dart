@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'layout/main_layout.dart';
+import 'screens/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode:
           ThemeMode.system, // Or ThemeMode.light/dark based on preference
-      home: const MainLayout(),
+      home: const LoginScreen(),
     );
   }
 }
