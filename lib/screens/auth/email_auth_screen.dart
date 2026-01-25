@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../../layout/main_layout.dart';
+import 'onboarding_screen.dart';
 
 class EmailAuthScreen extends StatefulWidget {
   const EmailAuthScreen({super.key});
@@ -32,7 +32,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         setState(() => _isLoading = false);
         // Navigate to Main App
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MainLayout()),
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
           (route) => false,
         );
       }
