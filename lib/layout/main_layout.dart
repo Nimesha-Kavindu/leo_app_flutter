@@ -2,11 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../models/event.dart';
-import '../models/post.dart';
 import '../models/user.dart';
-import '../widgets/event_card.dart';
-import '../widgets/post_card.dart';
+import '../screens/home/home_screen.dart';
 import '../screens/profile/user_profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -16,171 +13,169 @@ class MainLayout extends StatefulWidget {
   State<MainLayout> createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
+class _MainLayoutState extends State<MainLayout> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    // Pages for the Bottom Nav
+    final pages = [
+      const HomeScreen(), // 0: Home (Feed/Explore/Events)
+      const PlaceholderScreen(title: 'Clubs'), // 1: Clubs
+      const SizedBox.shrink(), // 2: Create Post (Handled by FAB)
+      const PlaceholderScreen(title: 'Messages'), // 3: Messages
+      UserProfileScreen(user: currentUser), // 4: Profile
+    ];
+
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(110), // Height for Title + Tabs
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  AppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    title: Text(
-                      'LeoConnect',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 22,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    actions: [
-                      IconButton(
-                        icon: Icon(
-                          PhosphorIcons.magnifyingGlass(),
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          PhosphorIcons.bell(),
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        onPressed: () {},
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16, left: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    UserProfileScreen(user: currentUser),
-                              ),
-                            );
-                          },
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundImage: NetworkImage(
-                              currentUser.avatarUrl ?? '',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  TabBar(
-                    controller: _tabController,
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                    labelColor: Theme.of(context).colorScheme.primary,
-                    unselectedLabelColor: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant,
-                    labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                    tabs: const [
-                      Tab(text: 'Feed'),
-                      Tab(text: 'Explore'),
-                      Tab(text: 'Events'),
-                    ],
-                  ),
-                ],
+      extendBody: true, // Crucial for floating/glass bottom bar
+      body: IndexedStack(index: _selectedIndex, children: pages),
+      bottomNavigationBar: _buildCustomBottomBar(context),
+    );
+  }
+
+  Widget _buildCustomBottomBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavItem(0, PhosphorIcons.house(), 'Home'),
+                _buildNavItem(1, PhosphorIcons.usersThree(), 'Clubs'),
+                // Central FAB - Create Post
+                _buildCreatePostFab(context),
+                _buildNavItem(3, PhosphorIcons.chatCircle(), 'Messages'),
+                _buildNavItem(4, PhosphorIcons.user(), 'Profile'),
+              ],
             ),
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [_buildFeedTab(), _buildExploreTab(), _buildEventsTab()],
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    final isSelected = _selectedIndex == index;
+    final color = isSelected
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            weight: isSelected ? 800 : 400, // Simulate bold icon
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: color,
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildFeedTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 120, bottom: 20),
-      itemCount: mockPosts.length,
-      itemBuilder: (context, index) {
-        return PostCard(
-          post: mockPosts[index],
-          onLike: () {},
-          onComment: () {},
-          onShare: () {},
-          onUserClick: () => _navigateToProfile(mockPosts[index].author),
-        );
-      },
-    );
-  }
-
-  Widget _buildExploreTab() {
-    // Reusing feed for explore for now, simulating different content
-    final explorePosts = [...mockPosts.reversed, ...mockPosts];
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 120, bottom: 20),
-      itemCount: explorePosts.length,
-      itemBuilder: (context, index) {
-        return PostCard(
-          post: explorePosts[index],
-          onLike: () {},
-          onUserClick: () => _navigateToProfile(explorePosts[index].author),
-        );
-      },
-    );
-  }
-
-  Widget _buildEventsTab() {
-    return Stack(
-      children: [
-        ListView.builder(
-          padding: const EdgeInsets.only(top: 120, bottom: 80),
-          itemCount: mockEvents.length,
-          itemBuilder: (context, index) {
-            return EventCard(event: mockEvents[index], onRSVP: () {});
-          },
-        ),
-        Positioned(
-          bottom: 24,
-          right: 24,
-          child: FloatingActionButton(
-            onPressed: () {},
-            child: Icon(PhosphorIcons.plus()),
+  Widget _buildCreatePostFab(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Handle Create Post Action
+        showModalBottomSheet(
+          context: context,
+          builder: (c) => Container(
+            height: 200,
+            color: Colors.white,
+            child: Center(child: Text("Create Post")),
           ),
+        );
+      },
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.5),
+              Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.1),
+            ],
+          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-      ],
+        child: Icon(
+          PhosphorIcons.plus(),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
+}
 
-  void _navigateToProfile(User user) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => UserProfileScreen(user: user)),
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  const PlaceholderScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text("$title Screen")),
     );
   }
+}
+
+// Extension to split Row children easily if needed, but here we just used list literal
+extension ListExtension<T> on List<T> {
+  // Helper not strictly needed if we construct list directly
 }
