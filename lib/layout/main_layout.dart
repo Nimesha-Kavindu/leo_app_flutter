@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/user.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/clubs/clubs_screen.dart';
+import '../screens/post/create_post_screen.dart';
 import '../screens/profile/user_profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -147,14 +148,10 @@ class _MainLayoutState extends State<MainLayout> {
     return GestureDetector(
       onTap: () {
         // Handle Create Post Action
-        showModalBottomSheet(
-          context: context,
-          builder: (c) => Container(
-            height: 200,
-            color: Colors.white,
-            child: Center(child: Text("Create Post")),
-          ),
-        );
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).push(MaterialPageRoute(builder: (c) => const CreatePostScreen()));
       },
       child: Container(
         width: 50,
