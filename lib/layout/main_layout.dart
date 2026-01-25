@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/user.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/clubs/clubs_screen.dart';
 import '../screens/profile/user_profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -21,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
     // Pages for the Bottom Nav
     final pages = [
       const HomeScreen(), // 0: Home (Feed/Explore/Events)
-      const PlaceholderScreen(title: 'Clubs'), // 1: Clubs
+      const ClubsScreen(), // 1: Clubs
       const SizedBox.shrink(), // 2: Create Post (Handled by FAB)
       const PlaceholderScreen(title: 'Messages'), // 3: Messages
       UserProfileScreen(user: currentUser), // 4: Profile
