@@ -70,7 +70,12 @@ class _MainLayoutState extends State<MainLayout> {
                 // Central FAB - Create Post
                 _buildCreatePostFab(context),
                 _buildNavItem(3, PhosphorIcons.chatCircle(), 'Messages'),
-                _buildNavItem(4, PhosphorIcons.user(), 'Profile'),
+                _buildNavItem(
+                  4,
+                  PhosphorIcons.user(),
+                  'Profile',
+                  imageUrl: currentUser.avatarUrl,
+                ),
               ],
             ),
           ),
@@ -79,7 +84,12 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    String label, {
+    String? imageUrl,
+  }) {
     final isSelected = _selectedIndex == index;
     final color = isSelected
         ? Theme.of(context).colorScheme.primary
@@ -95,11 +105,29 @@ class _MainLayoutState extends State<MainLayout> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: color,
-            weight: isSelected ? 800 : 400, // Simulate bold icon
-          ),
+          if (imageUrl != null)
+            Container(
+              padding: isSelected ? const EdgeInsets.all(2) : EdgeInsets.zero,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: isSelected
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      )
+                    : null,
+              ),
+              child: CircleAvatar(
+                radius: 12,
+                backgroundImage: NetworkImage(imageUrl),
+              ),
+            )
+          else
+            Icon(
+              icon,
+              color: color,
+              weight: isSelected ? 800 : 400, // Simulate bold icon
+            ),
           const SizedBox(height: 4),
           Text(
             label,

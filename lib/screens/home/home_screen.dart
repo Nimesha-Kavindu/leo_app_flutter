@@ -91,26 +91,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         onPressed: () {},
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16, left: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    UserProfileScreen(user: currentUser),
-                              ),
-                            );
-                          },
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundImage: NetworkImage(
-                              currentUser.avatarUrl ?? '',
-                            ),
-                          ),
-                        ),
-                      ),
+                      const SizedBox(width: 8), // Add some spacing at the end
                     ],
                   ),
                   TabBar(
