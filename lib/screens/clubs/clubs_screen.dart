@@ -13,14 +13,10 @@ class ClubsScreen extends StatefulWidget {
 
 class _ClubsScreenState extends State<ClubsScreen> {
   String? _selectedDistrict;
-  final List<String> _districts = [
-    '306 A1',
-    '306 A2',
-    '306 B1',
-    '306 B2',
-    '306 C1',
-    '306 C2',
-  ];
+  final List<String> _districts = List.generate(
+    12,
+    (index) => '306 D${index + 1}',
+  );
 
   @override
   Widget build(BuildContext context) {

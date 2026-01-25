@@ -28,7 +28,7 @@ final mockClubs = [
   Club(
     id: 'club_1',
     name: 'Leo Club of Colombo City',
-    district: '306 A1',
+    district: '306 D1',
     description:
         'We are a group of young leaders dedicated to serving our community and developing leadership skills.',
     logoUrl: 'https://picsum.photos/seed/club1/200',
@@ -40,7 +40,7 @@ final mockClubs = [
   Club(
     id: 'club_2',
     name: 'Leo Club of University of Moratuwa',
-    district: '306 A2',
+    district: '306 D2',
     description:
         'Empowering university students through community service and professional development.',
     logoUrl: 'https://picsum.photos/seed/uom/200',
@@ -51,7 +51,7 @@ final mockClubs = [
   Club(
     id: 'club_3',
     name: 'Leo Club of Wattala',
-    district: '306 B1',
+    district: '306 D3',
     description:
         'Serving the Wattala community with passion and dedication since 2010.',
     logoUrl: 'https://picsum.photos/seed/wattala/200',
@@ -61,7 +61,7 @@ final mockClubs = [
   Club(
     id: 'club_4',
     name: 'Leo Club of Kandy',
-    district: '306 C1',
+    district: '306 D4',
     description: 'Service with Pride.',
     logoUrl: 'https://picsum.photos/seed/kandy/200',
     membersCount: 88,
@@ -70,7 +70,7 @@ final mockClubs = [
   Club(
     id: 'club_5',
     name: 'Leo Club of Galle',
-    district: '306 A1',
+    district: '306 D1',
     description: 'Protecting our ocean and serving the southern community.',
     logoUrl: 'https://picsum.photos/seed/galle/200',
     membersCount: 40,
