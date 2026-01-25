@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../models/club.dart';
+import 'club_profile_screen.dart';
 
 class ClubsScreen extends StatefulWidget {
   const ClubsScreen({super.key});
@@ -181,7 +182,14 @@ class _ClubsScreenState extends State<ClubsScreen> {
         ],
       ),
       child: InkWell(
-        onTap: () {}, // Navigate to Club Detail
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClubProfileScreen(club: club),
+            ),
+          );
+        }, // Navigate to Club Detail
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
