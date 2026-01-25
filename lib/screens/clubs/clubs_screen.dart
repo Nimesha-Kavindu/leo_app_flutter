@@ -37,7 +37,7 @@ class _ClubsScreenState extends State<ClubsScreen> {
         slivers: [
           // 1. Modern Collapsible Search Header
           SliverAppBar(
-            expandedHeight: 140,
+            expandedHeight: 180, // Increased height
             floating: true,
             pinned: true,
             backgroundColor: Theme.of(
@@ -55,7 +55,10 @@ class _ClubsScreenState extends State<ClubsScreen> {
                   ),
                 ),
               ),
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+              titlePadding: const EdgeInsets.only(
+                left: 16,
+                bottom: 90,
+              ), // Moved title up (above search bar)
               title: Text(
                 'Discover Clubs',
                 style: GoogleFonts.outfit(
