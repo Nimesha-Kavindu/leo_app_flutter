@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../services/api_service.dart';
+import '../../services/storage_service.dart';
 import 'onboarding_screen.dart';
 
 class EmailAuthScreen extends StatefulWidget {
@@ -34,9 +35,17 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
             _passwordController.text,
           );
         } else {
-          await ApiService.login(
+          final response = await ApiService.login(
             _emailController.text,
             _passwordController.text,
+          );
+
+          // Save authentication data to local storage
+          await StorageService.saveAuthData(
+            token: response['token'],
+            userId: response['user']['id'],
+            username: response['user']['username'],
+            email: response['user']['email'],
           );
         }
 

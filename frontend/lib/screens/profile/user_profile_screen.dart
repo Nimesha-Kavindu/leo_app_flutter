@@ -1,14 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../models/user.dart';
-import '../../models/post.dart';
+import '../../services/api_service.dart';
+import '../../services/storage_service.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  final User user;
-
-  const UserProfileScreen({super.key, required this.user});
+  const UserProfileScreen({super.key});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
@@ -17,11 +15,51 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isLoading = true;
+  String? _error;
+  User? _user;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final token = await StorageService.getToken();
+      if (token == null) {
+        setState(() {
+          _error = 'Not logged in';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final response = await ApiService.getProfile(token);
+
+      // Create User object from API response
+      setState(() {
+        _user = User(
+          id: response['user']['username'] ?? 'user',
+          name: response['user']['username'] ?? 'Leo Member',
+          avatarUrl: 'https://i.pravatar.cc/150?u=${response['user']['id']}',
+          bio: response['user']['email'],
+          followers: 0,
+          following: 0,
+          posts: 0,
+          isVerified: true,
+          leoId: 'LEO-${response['user']['id'].toString().substring(0, 5)}',
+        );
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString().replaceAll('Exception: ', '');
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -32,6 +70,41 @@ class _UserProfileScreenState extends State<UserProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(PhosphorIcons.warningCircle(), size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadUserProfile,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_user == null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(child: Text('No user data')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: DefaultTabController(
@@ -82,7 +155,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
           Icon(PhosphorIcons.lockKey(), size: 16),
           const SizedBox(width: 8),
           Text(
-            widget.user.id, // Assuming 'id' is username-like, or use name logic
+            _user!.id,
             style: GoogleFonts.inter(
               fontWeight: FontWeight.bold,
               fontSize: 20,
@@ -99,7 +172,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
           onPressed: () {},
         ),
         IconButton(
-          icon: Icon(PhosphorIcons.list(), size: 28), // Hamburger menu
+          icon: Icon(PhosphorIcons.list(), size: 28),
           onPressed: () {},
         ),
       ],
@@ -124,7 +197,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 padding: const EdgeInsets.all(3),
                 child: CircleAvatar(
                   radius: 38,
-                  backgroundImage: NetworkImage(widget.user.avatarUrl ?? ''),
+                  backgroundImage: NetworkImage(_user!.avatarUrl ?? ''),
                 ),
               ),
               // Stats
@@ -132,9 +205,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStat('${widget.user.posts}', 'Posts'),
-                    _buildStat('${widget.user.followers}', 'Followers'),
-                    _buildStat('${widget.user.following}', 'Following'),
+                    _buildStat('${_user!.posts}', 'Posts'),
+                    _buildStat('${_user!.followers}', 'Followers'),
+                    _buildStat('${_user!.following}', 'Following'),
                   ],
                 ),
               ),
@@ -143,21 +216,18 @@ class _UserProfileScreenState extends State<UserProfileScreen>
           const SizedBox(height: 12),
           // Name & Bio
           Text(
-            widget.user.name,
+            _user!.name,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           ),
-          if (widget.user.bio != null)
+          if (_user!.bio != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(
-                widget.user.bio!,
-                style: const TextStyle(fontSize: 13),
-              ),
+              child: Text(_user!.bio!, style: const TextStyle(fontSize: 13)),
             ),
-          // Mock Link
-          if (widget.user.leoId != null)
+          // Leo ID
+          if (_user!.leoId != null)
             Text(
-              'Leo ID: ${widget.user.leoId}',
+              'Leo ID: ${_user!.leoId}',
               style: TextStyle(
                 color: Colors.blue.shade900,
                 fontWeight: FontWeight.w500,
@@ -186,7 +256,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
             ],
           ),
           const SizedBox(height: 16),
-          // Highlights (Mock)
+          // Highlights
           SizedBox(
             height: 85,
             child: ListView.separated(
@@ -256,6 +326,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   }
 
   Widget _buildPostsGrid() {
+    // Mock posts grid - same UI as before
     return GridView.builder(
       padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -263,13 +334,13 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         crossAxisSpacing: 1,
         mainAxisSpacing: 1,
       ),
-      itemCount: 30, // Mock items
+      itemCount: 30,
       itemBuilder: (context, index) {
-        // Reuse mock post images cyclically
-        final post = mockPosts[index % mockPosts.length];
-        return CachedNetworkImage(
-          imageUrl: post.imageUrl ?? 'https://picsum.photos/200',
-          fit: BoxFit.cover,
+        return Container(
+          color: Colors.grey.shade300,
+          child: Center(
+            child: Icon(PhosphorIcons.image(), color: Colors.grey.shade600),
+          ),
         );
       },
     );

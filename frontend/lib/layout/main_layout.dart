@@ -26,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
       const ClubsScreen(), // 1: Clubs
       const SizedBox.shrink(), // 2: Create Post (Handled by FAB)
       const PlaceholderScreen(title: 'Messages'), // 3: Messages
-      UserProfileScreen(user: currentUser), // 4: Profile
+      const UserProfileScreen(), // 4: Profile
     ];
 
     return Scaffold(

@@ -39,7 +39,8 @@ dependencies:
   phosphor_flutter: ^2.1.0
   cached_network_image: ^3.4.1
   glassmorphism_ui: ^0.3.0
-  http: ^1.2.0
+  http: ^1.2.2
+  shared_preferences: ^2.3.30
 
 dev_dependencies:
   flutter_test:

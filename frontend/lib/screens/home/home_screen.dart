@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _navigateToProfile(User user) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => UserProfileScreen(user: user)),
+      MaterialPageRoute(builder: (_) => const UserProfileScreen()),
     );
   }
 }
