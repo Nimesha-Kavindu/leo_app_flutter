@@ -6,5 +6,5 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "leo-app-db"
-database_id = "e0000000-0000-0000-0000-000000000000" # Emulating a local DB ID for now
+database_id = "6fd07e72-3055-43cd-a5d0-4c9800f741e9"
 preview_database_id = "DB"

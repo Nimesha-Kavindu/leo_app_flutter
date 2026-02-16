@@ -5,7 +5,8 @@ class ApiService {
   // For local development with 'wrangler dev', use localhost:8787
   // On Android emulator, use 10.0.2.2:8787
   // Update this to your deployed Cloudflare Worker URL for production
-  static const String baseUrl = 'http://127.0.0.1:8787/api/auth';
+  static const String baseUrl =
+      'https://leo-app-backend.leo-connect-usj.workers.dev/api/auth';
 
   static Future<Map<String, dynamic>> register(
     String username,
