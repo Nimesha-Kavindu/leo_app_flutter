@@ -65,7 +65,8 @@ const getProfile = async (req, res) => {
             if (!user) {
                   return res.status(404).json({ message: 'User not found' });
             }
-            res.json({ id: user.id, username: user.username, email: user.email });
+            // Match the expected format from Flutter ApiService
+            res.json({ user: { id: user.id, username: user.username, email: user.email } });
       } catch (error) {
             res.status(500).json({ message: 'Server error', error: error.message });
       }

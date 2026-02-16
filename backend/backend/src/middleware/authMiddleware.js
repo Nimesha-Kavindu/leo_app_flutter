@@ -9,7 +9,9 @@ const authenticateToken = (req, res, next) => {
       }
 
       try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // Use req.env for Cloudflare Workers, with fallback for dev
+            const secret = req.env.JWT_SECRET || 'dev_secret_key_123';
+            const decoded = jwt.verify(token, secret);
             req.user = decoded;
             next();
       } catch (error) {
