@@ -1,0 +1,10 @@
+name = "leo-app-backend"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "leo-app-db"
+database_id = "e0000000-0000-0000-0000-000000000000" # Emulating a local DB ID for now
+preview_database_id = "DB"

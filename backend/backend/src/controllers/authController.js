@@ -10,7 +10,7 @@ const register = async (req, res) => {
                   return res.status(400).json({ message: 'All fields are required' });
             }
 
-            const existingUser = User.findByEmail(email);
+            const existingUser = await User.findByEmail(req.env, email);
             if (existingUser) {
                   return res.status(400).json({ message: 'User already exists' });
             }
@@ -18,7 +18,7 @@ const register = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            const newUser = await User.create({
+            const newUser = await User.create(req.env, {
                   username,
                   email,
                   password: hashedPassword
@@ -26,6 +26,7 @@ const register = async (req, res) => {
 
             res.status(201).json({ message: 'User registered successfully', userId: newUser.id });
       } catch (error) {
+            console.error(error);
             res.status(500).json({ message: 'Server error', error: error.message });
       }
 };
@@ -38,7 +39,7 @@ const login = async (req, res) => {
                   return res.status(400).json({ message: 'All fields are required' });
             }
 
-            const user = User.findByEmail(email);
+            const user = await User.findByEmail(req.env, email);
             if (!user) {
                   return res.status(400).json({ message: 'Invalid credentials' });
             }
@@ -48,17 +49,21 @@ const login = async (req, res) => {
                   return res.status(400).json({ message: 'Invalid credentials' });
             }
 
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            // Use a default secret if env variable is not set (for dev/demo purposes)
+            // In production, ALWAYS set JWT_SECRET in wrangler.toml or dashboard
+            const secret = req.env.JWT_SECRET || 'dev_secret_key_123';
+            const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
 
             res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
       } catch (error) {
+            console.error(error);
             res.status(500).json({ message: 'Server error', error: error.message });
       }
 };
 
 const getProfile = async (req, res) => {
       try {
-            const user = User.findById(req.user.id);
+            const user = await User.findById(req.env, req.user.id);
             if (!user) {
                   return res.status(404).json({ message: 'User not found' });
             }

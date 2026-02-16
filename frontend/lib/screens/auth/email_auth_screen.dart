@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../services/api_service.dart';
 import 'onboarding_screen.dart';
 
 class EmailAuthScreen extends StatefulWidget {
@@ -25,16 +26,42 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Mock Auth Delay
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        if (_isSignUp) {
+          await ApiService.register(
+            "New User", // TODO: Add username field to form
+            _emailController.text,
+            _passwordController.text,
+          );
+        } else {
+          await ApiService.login(
+            _emailController.text,
+            _passwordController.text,
+          );
+        }
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // Navigate to Main App
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-          (route) => false,
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_isSignUp ? "Account created!" : "Welcome back!"),
+            ),
+          );
+
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

@@ -1,48 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-
-const usersFilePath = path.join(__dirname, '../../data', 'users.json');
-
-// Helper to read users from file
-const getUsers = () => {
-      if (!fs.existsSync(usersFilePath)) {
-            return [];
-      }
-      const data = fs.readFileSync(usersFilePath);
-      return JSON.parse(data);
-};
-
-// Helper to save users to file
-const saveUsers = (users) => {
-      fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
-};
-
 const User = {
-      findAll: () => getUsers(),
-
-      findByEmail: (email) => {
-            const users = getUsers();
-            return users.find(user => user.email === email);
+      findAll: async (env) => {
+            const { results } = await env.DB.prepare('SELECT * FROM users').all();
+            return results;
       },
 
-      findById: (id) => {
-            const users = getUsers();
-            return users.find(user => user.id === id);
+      findByEmail: async (env, email) => {
+            return await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
       },
 
-      create: async (userData) => {
-            const users = getUsers();
-            const newUser = {
-                  id: Date.now().toString(),
+      findById: async (env, id) => {
+            return await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
+      },
+
+      create: async (env, userData) => {
+            const id = crypto.randomUUID();
+            const now = new Date().toISOString();
+            
+            // Password hashing should be done in controller, here we just insert
+            await env.DB.prepare(
+                  'INSERT INTO users (id, username, email, password, createdAt) VALUES (?, ?, ?, ?, ?)'
+            ).bind(id, userData.username, userData.email, userData.password, now).run();
+
+            return {
+                  id,
                   username: userData.username,
                   email: userData.email,
-                  password: userData.password, // Already hashed in controller
-                  createdAt: new Date()
+                  createdAt: now
             };
-            users.push(newUser);
-            saveUsers(users);
-            return newUser;
       }
 };
 
