@@ -17,6 +17,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  int _signupStep = 1; // 1 = credentials, 2 = profile
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -27,6 +28,16 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   final _clubNameController = TextEditingController();
   final _aboutController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  void _goToNextStep() {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _signupStep = 2);
+    }
+  }
+
+  void _goBackToStep1() {
+    setState(() => _signupStep = 1);
+  }
 
   void _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
@@ -107,7 +118,11 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 const SizedBox(height: 32),
 
                 Text(
-                  _isSignUp ? "Create your account" : "Welcome back",
+                  _isSignUp
+                      ? (_signupStep == 1
+                            ? "Create your account"
+                            : "Complete your profile")
+                      : "Welcome back",
                   style: GoogleFonts.outfit(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -119,7 +134,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 Text(
                   _isSignUp
-                      ? "Sign up with your email to get started"
+                      ? (_signupStep == 1
+                            ? "Step 1 of 2: Enter your credentials"
+                            : "Step 2 of 2: Tell us about yourself")
                       : "Sign in to continue to LeoConnect",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
@@ -130,8 +147,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 const SizedBox(height: 40),
 
-                // Username (Sign Up Only)
-                if (_isSignUp) ...[
+                // Username (Sign Up Step 2 Only)
+                if (_isSignUp && _signupStep == 2) ...[
                   TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
@@ -151,61 +168,97 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Email
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    hintText: "your@email.com",
-                    prefixIcon: Icon(PhosphorIcons.envelopeSimple()),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter your email';
-                    if (!value.contains('@'))
-                      return 'Please enter a valid email';
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                // Password
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    hintText: "••••••••",
-                    prefixIcon: Icon(PhosphorIcons.lock()),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? PhosphorIcons.eye()
-                            : PhosphorIcons.eyeSlash(),
+                // Email (Step 1 or Login)
+                if (!_isSignUp || _signupStep == 1) ...[
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      hintText: "your@email.com",
+                      prefixIcon: Icon(PhosphorIcons.envelopeSimple()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter your email';
+                      if (!value.contains('@'))
+                        return 'Please enter a valid email';
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter your password';
-                    if (value.length < 6)
-                      return 'Password must be at least 6 characters';
-                    return null;
-                  },
-                ),
 
-                // Confirm Password (Sign Up Only)
-                if (_isSignUp) ...[
+                  const SizedBox(height: 16),
+
+                  // Password
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      hintText: "••••••••",
+                      prefixIcon: Icon(PhosphorIcons.lock()),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? PhosphorIcons.eye()
+                              : PhosphorIcons.eyeSlash(),
+                        ),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter your password';
+                      if (value.length < 6)
+                        return 'Password must be at least 6 characters';
+                      return null;
+                    },
+                  ),
+
+                  // Confirm Password (Step 1 only)
+                  if (_isSignUp && _signupStep == 1) ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: _obscureConfirmPassword,
+                      decoration: InputDecoration(
+                        labelText: "Confirm Password",
+                        hintText: "••••••••",
+                        prefixIcon: Icon(PhosphorIcons.lock()),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? PhosphorIcons.eye()
+                                : PhosphorIcons.eyeSlash(),
+                          ),
+                          onPressed: () => setState(
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value != _passwordController.text)
+                          return 'Passwords do not match';
+                        return null;
+                      },
+                    ),
+                  ],
+                ],
+
+                // Leo Fields (Sign Up Step 2 Only)
+                if (_isSignUp && _signupStep == 2) ...[
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _leoIdController,
@@ -265,58 +318,90 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirmPassword,
-                    decoration: InputDecoration(
-                      labelText: "Confirm Password",
-                      hintText: "••••••••",
-                      prefixIcon: Icon(PhosphorIcons.lock()),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? PhosphorIcons.eye()
-                              : PhosphorIcons.eyeSlash(),
-                        ),
-                        onPressed: () => setState(
-                          () => _obscureConfirmPassword =
-                              !_obscureConfirmPassword,
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value != _passwordController.text)
-                        return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
                 ],
 
                 const SizedBox(height: 32),
 
-                // Submit Button
-                FilledButton(
-                  onPressed: _isLoading ? null : _handleSubmit,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 56),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          _isSignUp ? "Create Account" : "Sign In",
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                // Navigation Buttons
+                if (_isSignUp && _signupStep == 2)
+                  // Step 2: Back + Sign Up buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isLoading ? null : _goBackToStep1,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Back',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _handleSubmit,
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  'Sign Up',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  // Step 1 or Login: Single button (Next or Sign In)
+                  FilledButton(
+                    onPressed: _isLoading
+                        ? null
+                        : (_isSignUp && _signupStep == 1
+                              ? _goToNextStep
+                              : _handleSubmit),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            _isSignUp ? "Create Account" : "Sign In",
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
 
                 const SizedBox(height: 24),
 
