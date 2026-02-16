@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'email_auth_screen.dart';
-import 'onboarding_screen.dart';
+import '../../layout/main_layout.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) {
       setState(() => _isLoading = false);
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        MaterialPageRoute(builder: (context) => const MainLayout()),
       );
     }
   }

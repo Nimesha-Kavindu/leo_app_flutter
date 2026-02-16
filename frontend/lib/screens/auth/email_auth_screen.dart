@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
-import 'onboarding_screen.dart';
+import '../../layout/main_layout.dart';
 
 class EmailAuthScreen extends StatefulWidget {
   const EmailAuthScreen({super.key});
@@ -77,7 +77,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
           );
 
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+            MaterialPageRoute(builder: (context) => const MainLayout()),
             (route) => false,
           );
         }
