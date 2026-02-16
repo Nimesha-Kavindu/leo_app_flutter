@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const User = {
       findAll: async (env) => {
             const { results } = await env.DB.prepare('SELECT * FROM users').all();
@@ -13,9 +15,9 @@ const User = {
       },
 
       create: async (env, userData) => {
-            const id = crypto.randomUUID();
+            const id = globalThis.crypto.randomUUID();
             const now = new Date().toISOString();
-            
+
             // Password hashing should be done in controller, here we just insert
             await env.DB.prepare(
                   'INSERT INTO users (id, username, email, password, createdAt) VALUES (?, ?, ?, ?, ?)'
