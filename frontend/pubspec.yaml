@@ -40,7 +40,8 @@ dependencies:
   cached_network_image: ^3.4.1
   glassmorphism_ui: ^0.3.0
   http: ^1.2.2
-  shared_preferences: ^2.3.30
+  shared_preferences: ^2.2.2
+  image_picker: ^1.0.730
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 
-import { register, login, getProfile } from './controllers/authController';
+import { register, login, getProfile, updateProfile } from './controllers/authController';
 import authenticateToken from './middleware/authMiddleware';
 
 const createApp = (env) => {
@@ -30,6 +30,13 @@ const createApp = (env) => {
                         await authenticateToken(req, res, () => { nextCalled = true; });
                         if (nextCalled) {
                               await getProfile(req, res);
+                        }
+                  } else if (path === '/api/auth/profile' && req.method === 'PUT') {
+                        // Update profile - requires authentication
+                        let nextCalled = false;
+                        await authenticateToken(req, res, () => { nextCalled = true; });
+                        if (nextCalled) {
+                              await updateProfile(req, res);
                         }
                   } else if (path === '/') {
                         res.status(200).send('Leo App Backend (Lightweight) Works!');

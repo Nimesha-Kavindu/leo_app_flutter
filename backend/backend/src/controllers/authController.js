@@ -87,4 +87,37 @@ const getProfile = async (req, res) => {
       }
 };
 
-module.exports = { register, login, getProfile };
+const updateProfile = async (req, res) => {
+      try {
+            const userId = req.userId; // from auth middleware
+            const { username, about, avatarUrl } = req.body;
+
+            if (!username) {
+                  return res.status(400).json({ message: 'Username is required' });
+            }
+
+            const updatedUser = await User.updateProfile(req.env, userId, {
+                  username,
+                  about,
+                  avatarUrl
+            });
+
+            res.json({
+                  message: 'Profile updated successfully',
+                  user: {
+                        id: updatedUser.id,
+                        username: updatedUser.username,
+                        email: updatedUser.email,
+                        leoId: updatedUser.leoId,
+                        leoDistrict: updatedUser.leoDistrict,
+                        clubName: updatedUser.clubName,
+                        about: updatedUser.about,
+                        avatarUrl: updatedUser.avatarUrl
+                  }
+            });
+      } catch (error) {
+            res.status(500).json({ message: 'Server error', error: error.message });
+      }
+};
+
+module.exports = { register, login, getProfile, updateProfile };

@@ -8,5 +8,6 @@ CREATE TABLE users (
   leoDistrict TEXT,
   clubName TEXT,
   about TEXT,
-  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  avatarUrl TEXT,
+  createdAt TEXT NOT NULL
 );

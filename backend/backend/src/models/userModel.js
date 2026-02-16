@@ -43,6 +43,16 @@ const User = {
                   about: userData.about,
                   createdAt: now
             };
+      },
+
+      updateProfile: async (env, userId, updates) => {
+            const { username, about, avatarUrl } = updates;
+
+            await env.DB.prepare(
+                  'UPDATE users SET username = ?, about = ?, avatarUrl = ? WHERE id = ?'
+            ).bind(username, about || null, avatarUrl || null, userId).run();
+
+            return await User.findById(env, userId);
       }
 };
 

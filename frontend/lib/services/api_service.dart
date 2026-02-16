@@ -59,6 +59,28 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  static Future<Map<String, dynamic>> updateProfile(
+    String token,
+    String username,
+    String? about,
+    String? avatarUrl,
+  ) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/profile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'username': username,
+        'about': about,
+        'avatarUrl': avatarUrl,
+      }),
+    );
+
+    return _handleResponse(response);
+  }
+
   static Map<String, dynamic> _handleResponse(http.Response response) {
     final body = jsonDecode(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {

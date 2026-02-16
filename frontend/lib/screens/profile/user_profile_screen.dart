@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/user.dart';
 import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
+import 'edit_profile_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -44,7 +46,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         _user = User(
           id: response['user']['username'] ?? 'user',
           name: response['user']['username'] ?? 'Leo Member',
-          avatarUrl: 'https://i.pravatar.cc/150?u=${response['user']['id']}',
+          avatarUrl:
+              response['user']['avatarUrl'] ??
+              'https://i.pravatar.cc/150?u=${response['user']['id']}',
           bio: response['user']['about'] ?? response['user']['email'],
           followers: 0,
           following: 0,
@@ -252,7 +256,27 @@ class _UserProfileScreenState extends State<UserProfileScreen>
           // Buttons
           Row(
             children: [
-              Expanded(child: _buildActionButton(context, 'Edit profile')),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(
+                          currentUsername: _user!.name,
+                          currentAbout: _user!.bio,
+                          currentAvatarUrl: _user!.avatarUrl,
+                        ),
+                      ),
+                    );
+                    // Refresh profile if edited
+                    if (result == true) {
+                      _loadUserProfile();
+                    }
+                  },
+                  child: _buildActionButton(context, 'Edit profile'),
+                ),
+              ),
               const SizedBox(width: 6),
               Expanded(child: _buildActionButton(context, 'Share profile')),
               const SizedBox(width: 6),
