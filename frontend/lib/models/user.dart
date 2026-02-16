@@ -8,6 +8,8 @@ class User {
   final int posts;
   final bool isVerified;
   final String? leoId;
+  final String? leoDistrict;
+  final String? clubName;
 
   User({
     required this.id,
@@ -19,6 +21,8 @@ class User {
     this.posts = 0,
     this.isVerified = false,
     this.leoId,
+    this.leoDistrict,
+    this.clubName,
   });
 }
 

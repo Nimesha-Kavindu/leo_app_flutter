@@ -20,13 +20,27 @@ const User = {
 
             // Password hashing should be done in controller, here we just insert
             await env.DB.prepare(
-                  'INSERT INTO users (id, username, email, password, createdAt) VALUES (?, ?, ?, ?, ?)'
-            ).bind(id, userData.username, userData.email, userData.password, now).run();
+                  'INSERT INTO users (id, username, email, password, leoId, leoDistrict, clubName, about, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ).bind(
+                  id,
+                  userData.username,
+                  userData.email,
+                  userData.password,
+                  userData.leoId || null,
+                  userData.leoDistrict || null,
+                  userData.clubName || null,
+                  userData.about || null,
+                  now
+            ).run();
 
             return {
                   id,
                   username: userData.username,
                   email: userData.email,
+                  leoId: userData.leoId,
+                  leoDistrict: userData.leoDistrict,
+                  clubName: userData.clubName,
+                  about: userData.about,
                   createdAt: now
             };
       }

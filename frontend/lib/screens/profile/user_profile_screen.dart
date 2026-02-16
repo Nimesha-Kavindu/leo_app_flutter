@@ -45,12 +45,14 @@ class _UserProfileScreenState extends State<UserProfileScreen>
           id: response['user']['username'] ?? 'user',
           name: response['user']['username'] ?? 'Leo Member',
           avatarUrl: 'https://i.pravatar.cc/150?u=${response['user']['id']}',
-          bio: response['user']['email'],
+          bio: response['user']['about'] ?? response['user']['email'],
           followers: 0,
           following: 0,
           posts: 0,
           isVerified: true,
-          leoId: 'LEO-${response['user']['id'].toString().substring(0, 5)}',
+          leoId: response['user']['leoId'],
+          leoDistrict: response['user']['leoDistrict'],
+          clubName: response['user']['clubName'],
         );
         _isLoading = false;
       });
@@ -225,7 +227,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
               child: Text(_user!.bio!, style: const TextStyle(fontSize: 13)),
             ),
           // Leo ID
-          if (_user!.leoId != null)
+          if (_user!.leoId != null && _user!.leoId!.isNotEmpty)
             Text(
               'Leo ID: ${_user!.leoId}',
               style: TextStyle(
@@ -233,6 +235,18 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
+            ),
+          // Leo District
+          if (_user!.leoDistrict != null && _user!.leoDistrict!.isNotEmpty)
+            Text(
+              '📍 ${_user!.leoDistrict}',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
+          // Club Name
+          if (_user!.clubName != null && _user!.clubName!.isNotEmpty)
+            Text(
+              '🏛️ ${_user!.clubName}',
+              style: const TextStyle(fontSize: 13),
             ),
           const SizedBox(height: 16),
           // Buttons

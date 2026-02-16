@@ -21,6 +21,11 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _leoIdController = TextEditingController();
+  final _leoDistrictController = TextEditingController();
+  final _clubNameController = TextEditingController();
+  final _aboutController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   void _handleSubmit() async {
@@ -30,9 +35,13 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       try {
         if (_isSignUp) {
           await ApiService.register(
-            "New User", // TODO: Add username field to form
+            _usernameController.text,
             _emailController.text,
             _passwordController.text,
+            _leoDistrictController.text,
+            _clubNameController.text,
+            leoId: _leoIdController.text.isEmpty ? null : _leoIdController.text,
+            about: _aboutController.text.isEmpty ? null : _aboutController.text,
           );
         } else {
           final response = await ApiService.login(
@@ -121,6 +130,27 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 const SizedBox(height: 40),
 
+                // Username (Sign Up Only)
+                if (_isSignUp) ...[
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      labelText: "Username",
+                      hintText: "Your display name",
+                      prefixIcon: Icon(PhosphorIcons.user()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter your username';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Email
                 TextFormField(
                   controller: _emailController,
@@ -176,6 +206,65 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 // Confirm Password (Sign Up Only)
                 if (_isSignUp) ...[
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _leoIdController,
+                    decoration: InputDecoration(
+                      labelText: "Leo ID (Optional)",
+                      hintText: "e.g. LEO-12345",
+                      prefixIcon: Icon(PhosphorIcons.identificationCard()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _leoDistrictController,
+                    decoration: InputDecoration(
+                      labelText: "Leo District",
+                      hintText: "Your Leo District",
+                      prefixIcon: Icon(PhosphorIcons.mapPin()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter your Leo District';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _clubNameController,
+                    decoration: InputDecoration(
+                      labelText: "Club Name",
+                      hintText: "Your Leo Club Name",
+                      prefixIcon: Icon(PhosphorIcons.users()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter your club name';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _aboutController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: "About (Optional)",
+                      hintText: "Tell us about yourself...",
+                      prefixIcon: Icon(PhosphorIcons.notepad()),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _confirmPasswordController,

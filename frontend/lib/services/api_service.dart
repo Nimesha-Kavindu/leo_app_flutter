@@ -12,7 +12,11 @@ class ApiService {
     String username,
     String email,
     String password,
-  ) async {
+    String leoDistrict,
+    String clubName, {
+    String? leoId,
+    String? about,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
       headers: {'Content-Type': 'application/json'},
@@ -20,6 +24,10 @@ class ApiService {
         'username': username,
         'email': email,
         'password': password,
+        'leoId': leoId,
+        'leoDistrict': leoDistrict,
+        'clubName': clubName,
+        'about': about,
       }),
     );
 

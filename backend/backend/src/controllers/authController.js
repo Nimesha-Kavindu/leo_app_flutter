@@ -4,10 +4,11 @@ const User = require('../models/userModel');
 
 const register = async (req, res) => {
       try {
-            const { username, email, password } = req.body;
+            const { username, email, password, leoId, leoDistrict, clubName, about } = req.body;
 
-            if (!username || !email || !password) {
-                  return res.status(400).json({ message: 'All fields are required' });
+            // Validate required fields
+            if (!username || !email || !password || !leoDistrict || !clubName) {
+                  return res.status(400).json({ message: 'Username, email, password, Leo District, and Club Name are required' });
             }
 
             const existingUser = await User.findByEmail(req.env, email);
@@ -19,7 +20,11 @@ const register = async (req, res) => {
             const user = await User.create(req.env, {
                   username,
                   email,
-                  password: hashedPassword
+                  password: hashedPassword,
+                  leoId: leoId || null,
+                  leoDistrict,
+                  clubName,
+                  about: about || null
             });
 
             res.status(201).json({ message: 'User created successfully', userId: user.id });
@@ -65,8 +70,18 @@ const getProfile = async (req, res) => {
             if (!user) {
                   return res.status(404).json({ message: 'User not found' });
             }
-            // Match the expected format from Flutter ApiService
-            res.json({ user: { id: user.id, username: user.username, email: user.email } });
+            // Match the expected format from Flutter ApiService with all Leo fields
+            res.json({
+                  user: {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        leoId: user.leoId,
+                        leoDistrict: user.leoDistrict,
+                        clubName: user.clubName,
+                        about: user.about
+                  }
+            });
       } catch (error) {
             res.status(500).json({ message: 'Server error', error: error.message });
       }
