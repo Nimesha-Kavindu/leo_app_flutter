@@ -1,4 +1,4 @@
-package com.example.leo_app_flutter
+package com.leoconnect.app
 
 import io.flutter.embedding.android.FlutterActivity
 
