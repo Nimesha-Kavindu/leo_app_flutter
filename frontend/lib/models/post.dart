@@ -20,6 +20,22 @@ class Post {
     this.comments = 0,
     this.isLiked = false,
   });
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'] as String,
+      author: User(
+        id: json['authorId'] as String,
+        name: json['username'] as String? ?? 'Unknown',
+        avatarUrl: json['avatarUrl'] as String?,
+      ),
+      content: json['caption'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String?,
+      timestamp: DateTime.parse(json['createdAt'] as String),
+      likes: (json['likeCount'] as num?)?.toInt() ?? 0,
+      comments: (json['commentCount'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 final mockPosts = [
@@ -27,7 +43,7 @@ final mockPosts = [
     id: 'post_1',
     author: mockUser,
     content:
-        'Had a great time at the district installation ceremony! 🦁 #LeoClub #Leadership',
+        'Had a great time at the district installation ceremony! #LeoClub #Leadership',
     imageUrl: 'https://picsum.photos/seed/leo1/600/400',
     timestamp: DateTime.now().subtract(const Duration(hours: 2)),
     likes: 45,

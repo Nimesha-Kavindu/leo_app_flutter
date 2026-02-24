@@ -22,6 +22,17 @@ class Club {
     this.isMember = false,
     this.isFollowing = false,
   });
+
+  factory Club.fromJson(Map<String, dynamic> json) {
+    return Club(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      district: json['district'] as String? ?? '',
+      description: json['description'] as String?,
+      logoUrl: json['avatarUrl'] as String?,
+      followersCount: (json['followerCount'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 final mockClubs = [

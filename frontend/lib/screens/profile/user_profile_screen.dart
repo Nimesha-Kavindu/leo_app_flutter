@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/user.dart';
 import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
+import '../../screens/auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -46,8 +46,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         _user = User(
           id: response['user']['username'] ?? 'user',
           name: response['user']['username'] ?? 'Leo Member',
-          avatarUrl:
-              response['user']['avatarUrl'] ??
+          avatarUrl: response['user']['avatarUrl'] ??
               'https://i.pravatar.cc/150?u=${response['user']['id']}',
           bio: response['user']['about'] ?? response['user']['email'],
           followers: 0,
@@ -150,6 +149,41 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     );
   }
 
+  Future<void> _showMenu(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                PhosphorIcons.signOut(),
+                color: Theme.of(ctx).colorScheme.error,
+              ),
+              title: Text(
+                'Log out',
+                style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+              ),
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                await StorageService.clearAuthData();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
+                    (_) => false,
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
@@ -179,7 +213,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         ),
         IconButton(
           icon: Icon(PhosphorIcons.list(), size: 28),
-          onPressed: () {},
+          onPressed: () => _showMenu(context),
         ),
       ],
     );

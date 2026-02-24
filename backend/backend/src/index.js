@@ -68,7 +68,11 @@ export default {
       try {
         app(req, res);
       } catch (e) {
-        resolve(new Response('App Error: ' + e.message + '\n' + e.stack, { status: 500 }));
+        console.error('[worker]', e);
+        resolve(new Response(JSON.stringify({ message: 'Internal server error' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }));
       }
     });
   }

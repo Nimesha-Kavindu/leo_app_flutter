@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../services/api_service.dart';
+import '../../services/storage_service.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -14,22 +16,82 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<String> _selectedImages = [];
   bool _isPosting = false;
+  String? _username;
+  String? _avatarUrl;
 
-  void _handlePost() async {
-    if (_textController.text.trim().isEmpty && _selectedImages.isEmpty) return;
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
 
-    setState(() {
-      _isPosting = true;
-    });
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _loadUser() async {
+    final token = await StorageService.getToken();
+    if (token == null) return;
+    try {
+      final data = await ApiService.getProfile(token);
+      final user = data['user'] as Map<String, dynamic>?;
+      if (user != null && mounted) {
+        setState(() {
+          _username = user['username'] as String?;
+          _avatarUrl = user['avatarUrl'] as String?;
+        });
+      }
+    } catch (_) {
+      // Non-critical
+    }
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post created successfully!')),
+  Future<void> _handlePost() async {
+    final caption = _textController.text.trim();
+    if (caption.isEmpty && _selectedImages.isEmpty) return;
+
+    setState(() => _isPosting = true);
+
+    try {
+      final token = await StorageService.getToken();
+      if (token == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Not authenticated')),
+          );
+        }
+        return;
+      }
+
+      // If multiple images selected, use first one (single image per post for now)
+      final imageUrl =
+          _selectedImages.isNotEmpty ? _selectedImages.first : null;
+
+      await ApiService.createPost(
+        token,
+        imageUrl: imageUrl,
+        caption: caption.isNotEmpty ? caption : null,
       );
-      Navigator.pop(context);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post created successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPosting = false);
     }
   }
 
@@ -68,8 +130,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: FilledButton(
-              onPressed:
-                  (_textController.text.isNotEmpty ||
+              onPressed: (_textController.text.isNotEmpty ||
                           _selectedImages.isNotEmpty) &&
                       !_isPosting
                   ? _handlePost
@@ -97,18 +158,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // User Info Mock
+            // User Info
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage(
-                    'https://picsum.photos/seed/user/200',
-                  ), // Current user mock
+                  backgroundImage: _avatarUrl != null
+                      ? NetworkImage(_avatarUrl!) as ImageProvider
+                      : null,
+                  child: _avatarUrl == null ? Icon(PhosphorIcons.user()) : null,
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Nimesh Viraj', // Mock Name
+                  _username ?? 'You',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,

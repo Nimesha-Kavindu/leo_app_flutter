@@ -120,8 +120,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 Text(
                   _isSignUp
                       ? (_signupStep == 1
-                            ? "Create your account"
-                            : "Complete your profile")
+                          ? "Create your account"
+                          : "Complete your profile")
                       : "Welcome back",
                   style: GoogleFonts.outfit(
                     fontSize: 28,
@@ -135,8 +135,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 Text(
                   _isSignUp
                       ? (_signupStep == 1
-                            ? "Step 1 of 2: Enter your credentials"
-                            : "Step 2 of 2: Tell us about yourself")
+                          ? "Step 1 of 2: Enter your credentials"
+                          : "Step 2 of 2: Tell us about yourself")
                       : "Sign in to continue to LeoConnect",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
@@ -160,8 +160,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your username';
+                      }
                       return null;
                     },
                   ),
@@ -182,10 +183,12 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your email';
-                      if (!value.contains('@'))
+                      }
+                      if (!value.contains('@')) {
                         return 'Please enter a valid email';
+                      }
                       return null;
                     },
                   ),
@@ -215,10 +218,12 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your password';
-                      if (value.length < 6)
+                      }
+                      if (value.length < 6) {
                         return 'Password must be at least 6 characters';
+                      }
                       return null;
                     },
                   ),
@@ -249,8 +254,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value != _passwordController.text)
+                        if (value != _passwordController.text) {
                           return 'Passwords do not match';
+                        }
                         return null;
                       },
                     ),
@@ -283,8 +289,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your Leo District';
+                      }
                       return null;
                     },
                   ),
@@ -300,8 +307,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your club name';
+                      }
                       return null;
                     },
                   ),
@@ -384,8 +392,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     onPressed: _isLoading
                         ? null
                         : (_isSignUp && _signupStep == 1
-                              ? _goToNextStep
-                              : _handleSubmit),
+                            ? _goToNextStep
+                            : _handleSubmit),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
                       shape: RoundedRectangleBorder(

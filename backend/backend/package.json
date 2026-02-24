@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute leo-app-db --local --file=schema.sql",
+    "db:migrate:remote": "wrangler d1 execute leo-app-db --remote --file=schema.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

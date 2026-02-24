@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'dart:convert';
 import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
 
@@ -27,9 +24,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _usernameController;
   late TextEditingController _aboutController;
-  File? _selectedImage;
   bool _isLoading = false;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -45,40 +40,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error selecting image: $e')));
-      }
-    }
-  }
-
-  Future<String?> _convertImageToBase64() async {
-    if (_selectedImage == null) return null;
-
-    try {
-      final bytes = await _selectedImage!.readAsBytes();
-      return base64Encode(bytes);
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -90,29 +51,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         throw Exception('Not authenticated');
       }
 
-      // Convert image to base64 if selected
-      String? avatarData;
-      if (_selectedImage != null) {
-        avatarData = await _convertImageToBase64();
-        if (avatarData != null) {
-          avatarData = 'data:image/jpeg;base64,$avatarData';
-        }
-      }
-
-      final response = await ApiService.updateProfile(
+      // Avatar changes require R2 upload (not yet implemented).
+      // Pass the existing URL through unchanged.
+      await ApiService.updateProfile(
         token,
         _usernameController.text.trim(),
         _aboutController.text.trim().isEmpty
             ? null
             : _aboutController.text.trim(),
-        avatarData ?? widget.currentAvatarUrl,
+        widget.currentAvatarUrl,
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
         );
-        Navigator.of(context).pop(true); // Return true to indicate success
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
@@ -149,49 +103,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            // Profile Image Picker
+            // Profile picture — avatar upload via R2 is not yet implemented.
             Center(
-              child: GestureDetector(
-                onTap: _pickImage,
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        image: _selectedImage != null
-                            ? DecorationImage(
-                                image: FileImage(_selectedImage!),
-                                fit: BoxFit.cover,
-                              )
-                            : (widget.currentAvatarUrl != null
-                                  ? DecorationImage(
-                                      image: NetworkImage(
-                                        widget.currentAvatarUrl!,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null),
-                      ),
-                      child:
-                          _selectedImage == null &&
-                              widget.currentAvatarUrl == null
-                          ? Icon(
-                              PhosphorIcons.user(),
-                              size: 50,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
+              child: Stack(
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      image: widget.currentAvatarUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(widget.currentAvatarUrl!),
+                              fit: BoxFit.cover,
                             )
                           : null,
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
+                    child: widget.currentAvatarUrl == null
+                        ? Icon(
+                            PhosphorIcons.user(),
+                            size: 50,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Photo upload coming soon (R2 integration pending)',
+                            ),
+                          ),
+                        );
+                      },
                       child: Container(
                         width: 36,
                         height: 36,
@@ -210,8 +163,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
@@ -228,7 +181,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 40),
 
-            // Username Field
             TextFormField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -252,7 +204,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 20),
 
-            // About Field
             TextFormField(
               controller: _aboutController,
               maxLines: 4,
@@ -273,7 +224,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 32),
 
-            // Save Button
             FilledButton(
               onPressed: _isLoading ? null : _saveProfile,
               style: FilledButton.styleFrom(

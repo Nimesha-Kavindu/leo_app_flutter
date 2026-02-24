@@ -6,8 +6,10 @@ import '../models/event.dart';
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback? onRSVP;
+  final VoidCallback? onCancelRsvp;
 
-  const EventCard({super.key, required this.event, this.onRSVP});
+  const EventCard(
+      {super.key, required this.event, this.onRSVP, this.onCancelRsvp});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,10 @@ class EventCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(context)
+              .colorScheme
+              .outlineVariant
+              .withValues(alpha: 0.5),
         ),
       ),
       child: Column(
@@ -63,23 +68,23 @@ class EventCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.surface.withOpacity(0.9),
+                    ).colorScheme.surface.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
                     children: [
                       Text(
-                        '${event.date.day}',
+                        '${event.startAt.day}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       Text(
-                        _getMonth(event.date.month),
+                        _getMonth(event.startAt.month),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ],
                   ),
@@ -98,49 +103,73 @@ class EventCard extends StatelessWidget {
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      PhosphorIcons.mapPin(),
-                      size: 16,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        event.location,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
+                if (event.clubName != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    event.clubName!,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                if (event.location != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.mapPin(),
+                        size: 16,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  event.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          event.location!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (event.description != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    event.description!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        '${event.attendees} Attending',
-                        style: Theme.of(context).textTheme.labelMedium
+                        '${event.attendeeCount} Attending',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
-                    FilledButton.icon(
-                      onPressed: onRSVP,
-                      icon: Icon(PhosphorIcons.calendarPlus()),
-                      label: const Text('RSVP'),
-                    ),
+                    event.isAttending
+                        ? OutlinedButton.icon(
+                            onPressed: onCancelRsvp,
+                            icon: Icon(PhosphorIcons.calendarX()),
+                            label: const Text('Cancel RSVP'),
+                          )
+                        : FilledButton.icon(
+                            onPressed: onRSVP,
+                            icon: Icon(PhosphorIcons.calendarPlus()),
+                            label: const Text('RSVP'),
+                          ),
                   ],
                 ),
               ],

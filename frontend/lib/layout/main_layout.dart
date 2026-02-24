@@ -2,11 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../models/user.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/clubs/clubs_screen.dart';
 import '../screens/post/create_post_screen.dart';
 import '../screens/profile/user_profile_screen.dart';
+import '../screens/messages/messages_screen.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -17,6 +19,28 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _selectedIndex = 0;
+  String? _avatarUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final token = await StorageService.getToken();
+    if (token == null) return;
+    try {
+      final data = await ApiService.getProfile(token);
+      final user = data['user'] as Map<String, dynamic>?;
+      final url = user?['avatarUrl'] as String?;
+      if (url != null && url.isNotEmpty && mounted) {
+        setState(() => _avatarUrl = url);
+      }
+    } catch (_) {
+      // Non-critical — nav bar just shows icon instead of avatar
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +49,7 @@ class _MainLayoutState extends State<MainLayout> {
       const HomeScreen(), // 0: Home (Feed/Explore/Events)
       const ClubsScreen(), // 1: Clubs
       const SizedBox.shrink(), // 2: Create Post (Handled by FAB)
-      const PlaceholderScreen(title: 'Messages'), // 3: Messages
+      const MessagesScreen(), // 3: Messages
       const UserProfileScreen(), // 4: Profile
     ];
 
@@ -76,7 +100,7 @@ class _MainLayoutState extends State<MainLayout> {
                   4,
                   PhosphorIcons.user(),
                   'Profile',
-                  imageUrl: currentUser.avatarUrl,
+                  imageUrl: _avatarUrl,
                 ),
               ],
             ),
@@ -186,22 +210,4 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     );
   }
-}
-
-class PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const PlaceholderScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text("$title Screen")),
-    );
-  }
-}
-
-// Extension to split Row children easily if needed, but here we just used list literal
-extension ListExtension<T> on List<T> {
-  // Helper not strictly needed if we construct list directly
 }

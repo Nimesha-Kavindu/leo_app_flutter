@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageService {
   static const String _tokenKey = 'auth_token';
@@ -6,56 +6,51 @@ class StorageService {
   static const String _usernameKey = 'username';
   static const String _emailKey = 'email';
 
-  // Save authentication data
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
   static Future<void> saveAuthData({
     required String token,
     required String userId,
     required String username,
     required String email,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-    await prefs.setString(_userIdKey, userId);
-    await prefs.setString(_usernameKey, username);
-    await prefs.setString(_emailKey, email);
+    await Future.wait([
+      _storage.write(key: _tokenKey, value: token),
+      _storage.write(key: _userIdKey, value: userId),
+      _storage.write(key: _usernameKey, value: username),
+      _storage.write(key: _emailKey, value: email),
+    ]);
   }
 
-  // Get token
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return _storage.read(key: _tokenKey);
   }
 
-  // Get user ID
   static Future<String?> getUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userIdKey);
+    return _storage.read(key: _userIdKey);
   }
 
-  // Get username
   static Future<String?> getUsername() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_usernameKey);
+    return _storage.read(key: _usernameKey);
   }
 
-  // Get email
   static Future<String?> getEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_emailKey);
+    return _storage.read(key: _emailKey);
   }
 
-  // Check if user is logged in
   static Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
   }
 
-  // Clear all authentication data (logout)
   static Future<void> clearAuthData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    await prefs.remove(_userIdKey);
-    await prefs.remove(_usernameKey);
-    await prefs.remove(_emailKey);
+    await Future.wait([
+      _storage.delete(key: _tokenKey),
+      _storage.delete(key: _userIdKey),
+      _storage.delete(key: _usernameKey),
+      _storage.delete(key: _emailKey),
+    ]);
   }
 }

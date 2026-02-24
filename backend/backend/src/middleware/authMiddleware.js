@@ -1,22 +1,27 @@
 const jwt = require('jsonwebtoken');
 
 const authenticateToken = (req, res, next) => {
-      const authHeader = req.headers['authorization'];
-      const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
 
-      if (!token) {
-            return res.status(401).json({ message: 'Access denied. No token provided.' });
-      }
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
 
-      try {
-            // Use req.env for Cloudflare Workers, with fallback for dev
-            const secret = req.env.JWT_SECRET || 'dev_secret_key_123';
-            const decoded = jwt.verify(token, secret);
-            req.user = decoded;
-            next();
-      } catch (error) {
-            res.status(403).json({ message: 'Invalid token' });
-      }
+  // Fail hard if JWT_SECRET is missing — never use a fallback
+  const secret = req.env.JWT_SECRET;
+  if (!secret) {
+    console.error('[authMiddleware] JWT_SECRET is not set in environment');
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secret, { issuer: 'leoconnect' });
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
 };
 
 module.exports = authenticateToken;

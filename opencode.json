@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    ".opencode/skills/flutter-standards/SKILL.md",
+    ".opencode/skills/cloudflare-workers/SKILL.md",
+    ".opencode/skills/security-audit/SKILL.md",
+    ".opencode/skills/api-design/SKILL.md",
+    ".opencode/skills/git-workflow/SKILL.md"
+  ],
+  "mcpServers": {
+    "cloudflare": {
+      "type": "remote",
+      "url": "https://bindings.mcp.cloudflare.com/sse"
+    },
+    "flutter-docs": {
+      "type": "local",
+      "command": "bunx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/opt/homebrew/share/flutter/packages"],
+      "description": "Access Flutter SDK source and package docs"
+    }
+  }
+}

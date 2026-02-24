@@ -27,7 +27,10 @@ class PostCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(context)
+              .colorScheme
+              .outlineVariant
+              .withValues(alpha: 0.5),
         ),
       ),
       color: Theme.of(context).colorScheme.surface,
@@ -53,14 +56,18 @@ class PostCard extends StatelessWidget {
                     children: [
                       Text(
                         post.author.name,
-                        style: Theme.of(context).textTheme.titleMedium
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         _formatDate(post.timestamp),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                       ),
                     ],
                   ),
