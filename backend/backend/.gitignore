@@ -27,6 +27,7 @@ dist/
 # Environment files
 .env
 .env.*
+.dev.vars
 
 # OS files
 .DS_Store

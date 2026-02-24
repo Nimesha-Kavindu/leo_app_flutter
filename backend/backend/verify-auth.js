@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:5000/api/auth';
+const BASE_URL = 'http://localhost:8787/api/auth';
 const TEST_USER = {
       username: 'testuser',
       email: `test${Date.now()}@example.com`,
